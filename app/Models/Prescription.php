@@ -9,4 +9,11 @@ class Prescription extends Model
 {
     /** @use HasFactory<\Database\Factories\PrescriptionFactory> */
     use HasFactory;
+
+    public function doctor(){
+        return $this->belongsTo(Doctor::class);
+    }
+    public function patient(){
+        return $this->belongsTo(Patient::class);
+    }
 }

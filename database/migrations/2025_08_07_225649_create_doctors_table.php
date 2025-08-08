@@ -16,6 +16,10 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete()
             // ->restrictOnDelete() age child theke delete than parent but cascadeOnDelete() from parent child auto delete
             ->cascadeOnUpdate();
+            $table->foreignId('speciality_id')->constrained('specialities')->cascadeOnDelete();
+            $table->text('bio')->nullable();
+            $table->integer('experience')->nullable();
+            $table->boolean('is_featured')->nullable();
             $table->timestamps();
         });
     }
