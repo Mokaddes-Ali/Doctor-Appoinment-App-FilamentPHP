@@ -65,6 +65,7 @@ class DoctorResource extends Resource
                                 Forms\Components\TextInput::make('name')
                                     ->required()
                                     ->maxLength(255),
+                                    
                                 Forms\Components\TextInput::make('description')
                                     ->maxLength(255),
                                 Forms\Components\Toggle::make('status')
@@ -72,7 +73,12 @@ class DoctorResource extends Resource
                             ]),
 
                         Forms\Components\Textarea::make('bio')
+                            ->label('Doctor Biography')
                             ->columnSpanFull(),
+                             Forms\Components\TextInput::make('hospital_name')
+                                     ->label('Hospital Name')
+                                    ->maxLength(255)
+                                    ->required(),
 
                         Forms\Components\TextInput::make('experience')
                             ->numeric(),
@@ -122,9 +128,14 @@ class DoctorResource extends Resource
                     ->label('Speciality')
                     ->searchable()
                     ->sortable(),
+                    Tables\Columns\TextColumn::make('hospital_name')
+                    ->label('Hospital Name')
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('experience')
                     ->numeric()
                     ->sortable(),
+                    
                 Tables\Columns\IconColumn::make('is_featured')
                     ->label('Featured')
                     ->boolean(),

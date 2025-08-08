@@ -10,13 +10,15 @@
   <!-- Grid -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
 
-    @if (count($featuredDoctors) > 0)
+    @if ($featuredDoctors && $featuredDoctors->count() > 0)
     @foreach ($featuredDoctors as $item)
     <div
       class="flex flex-col rounded-xl p-6 bg-white border border-gray-200 dark:bg-neutral-900 dark:border-neutral-700 w-full">
 
       <div class="flex items-center gap-x-4">
+
       <livewire:patient.profile.profile-image :id="$item->id" />
+      
       <div class="grow">
       <h3 class="font-medium text-gray-800 dark:text-neutral-200">
       Dr. {{$item->user->name}}
