@@ -53,6 +53,7 @@ class DoctorScheduleResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('doctor.user.name')
+                ->label('Doctor')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('available_day')
                     ->formatStateUsing(function ($state) {

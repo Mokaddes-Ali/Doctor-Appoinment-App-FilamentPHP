@@ -23,12 +23,46 @@ class DoctorResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('user_id')
+                Forms\Components\Select::make('user_id')
+                ->relationship('user', 'name',function($query){
+                        $query->where('role', 'doctor');
+                    })
+                ->searchable()
+                ->preload()
+                ->required()
+                 ->createOptionForm([
+           Forms\Components\TextInput::make('name')
+            ->required()
+            ->maxLength(255),
+          Forms\Components\TextInput::make('email')
+              ->email()
+            ->required()
+            ->unique(\App\Models\User::class, 'email'),
+         Forms\Components\TextInput::make('password')
+            ->password()
+            ->required()
+            ->minLength(6),
+              Forms\Components\Select::make('role')->options([
+                    'admin' => 'Admin',
+                    'patient' => 'Patient',
+                    'doctor' => 'Doctor'
+                ])
+                    ->required(),
+                 ]),
+                Forms\Components\Select::make('speciality_id')
+                    ->relationship('speciality', 'name')
+                    ->searchable()
+                    ->preload()
                     ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('speciality_id')
+                    ->createOptionForm([
+                         Forms\Components\TextInput::make('name')
                     ->required()
-                    ->numeric(),
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('description')
+                    ->maxLength(255),
+                Forms\Components\Toggle::make('status')
+                    ->required()
+        ]),
                 Forms\Components\Textarea::make('bio')
                     ->columnSpanFull(),
                 Forms\Components\TextInput::make('experience')

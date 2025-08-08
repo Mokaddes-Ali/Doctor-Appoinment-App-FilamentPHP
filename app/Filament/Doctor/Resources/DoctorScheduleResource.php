@@ -12,12 +12,30 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Auth\Access\Response;
+use Illuminate\Database\Eloquent\Model;
 
 class DoctorScheduleResource extends Resource
 {
     protected static ?string $model = DoctorSchedule::class;
 
+
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
+
+
+public static function authorize(string $action, ?Model $record = null): ?Response
+{
+    $user = auth()->user();
+
+    if ($user && $user->role === 'doctor') {
+        return Response::allow();
+    }
+
+    return Response::deny('You do not have permission to access this resource.');
+}
+
 
     public static function form(Form $form): Form
     {
@@ -50,9 +68,20 @@ class DoctorScheduleResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+
+       ->modifyQueryUsing(function (Builder $query) {
+                $doctor = Auth::user()->doctor;
+                if ($doctor) {
+                    $query->where('doctor_id', $doctor->id);
+                } else {
+                    // doctor না থাকলে খালি রেজাল্ট দিবে
+                    $query->whereNull('doctor_id');
+                }
+            })
+
             ->columns([
-               Tables\Columns\TextColumn::make('doctor.user.name')
-                    ->sortable(),
+            //    Tables\Columns\TextColumn::make('doctor.user.name')
+            //         ->sortable(),
                 Tables\Columns\TextColumn::make('available_day')
                     ->formatStateUsing(function ($state) {
                         $days = [
