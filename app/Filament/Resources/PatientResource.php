@@ -23,9 +23,32 @@ class PatientResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('user_id')
-                    ->required()
-                    ->numeric(),
+                 Forms\Components\Select::make('user_id')
+                ->relationship('user', 'name',function($query){
+                        $query->where('role', 'patient');
+                    })
+                ->searchable()
+                ->preload()
+                ->required()
+                 ->createOptionForm([
+           Forms\Components\TextInput::make('name')
+            ->required()
+            ->maxLength(255),
+          Forms\Components\TextInput::make('email')
+              ->email()
+            ->required()
+            ->unique(\App\Models\User::class, 'email'),
+         Forms\Components\TextInput::make('password')
+            ->password()
+            ->required()
+            ->minLength(6),
+              Forms\Components\Select::make('role')->options([
+                    'admin' => 'Admin',
+                    'patient' => 'Patient',
+                    'doctor' => 'Doctor'
+                ])
+                    ->required(),
+                 ]),
             ]);
     }
 
@@ -33,9 +56,9 @@ class PatientResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('user_id')
-                    ->numeric()
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('user.name')
+                ->label('Patient Name') 
+                ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

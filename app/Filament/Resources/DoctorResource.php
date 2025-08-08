@@ -2,16 +2,18 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\DoctorResource\Pages;
-use App\Filament\Resources\DoctorResource\RelationManagers;
-use App\Models\Doctor;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
+use App\Models\Doctor;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Resources\Resource;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Section;
 use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Resources\DoctorResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\DoctorResource\RelationManagers;
 
 class DoctorResource extends Resource
 {
@@ -22,69 +24,102 @@ class DoctorResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-            ->schema([
-                Forms\Components\Select::make('user_id')
-                ->relationship('user', 'name',function($query){
-                        $query->where('role', 'doctor');
-                    })
-                ->searchable()
-                ->preload()
-                ->required()
-                 ->createOptionForm([
-           Forms\Components\TextInput::make('name')
-            ->required()
-            ->maxLength(255),
-          Forms\Components\TextInput::make('email')
-              ->email()
-            ->required()
-            ->unique(\App\Models\User::class, 'email'),
-         Forms\Components\TextInput::make('password')
-            ->password()
-            ->required()
-            ->minLength(6),
-              Forms\Components\Select::make('role')->options([
-                    'admin' => 'Admin',
-                    'patient' => 'Patient',
-                    'doctor' => 'Doctor'
-                ])
-                    ->required(),
-                 ]),
-                Forms\Components\Select::make('speciality_id')
-                    ->relationship('speciality', 'name')
-                    ->searchable()
-                    ->preload()
-                    ->required()
-                    ->createOptionForm([
-                         Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('description')
-                    ->maxLength(255),
-                Forms\Components\Toggle::make('status')
-                    ->required()
-        ]),
-                Forms\Components\Textarea::make('bio')
-                    ->columnSpanFull(),
-                Forms\Components\TextInput::make('experience')
-                    ->numeric(),
-                Forms\Components\Toggle::make('is_featured'),
-            ]);
+        ->schema([
+            Section::make('Doctor Information')
+             ->description('Fill in the doctor information and settings')
+                        ->schema([
+                            Forms\Components\Select::make('user_id')
+                                ->label('User')
+                                ->relationship('user', 'name', function ($query) {
+                                    $query->where('role', 'doctor');
+                                })
+                                ->searchable()
+                                ->preload()
+                                ->required()
+                                ->createOptionForm([
+                                    Forms\Components\TextInput::make('name')
+                                        ->required()
+                                        ->maxLength(255),
+                                    Forms\Components\TextInput::make('email')
+                                        ->email()
+                                        ->required()
+                                        ->unique(\App\Models\User::class, 'email'),
+                                    Forms\Components\TextInput::make('password')
+                                        ->password()
+                                        ->required()
+                                        ->minLength(6),
+                                    Forms\Components\Select::make('role')->options([
+                                        'admin' => 'Admin',
+                                        'patient' => 'Patient',
+                                        'doctor' => 'Doctor',
+                                    ])->required(),
+                                ]),
+                            
+                            Forms\Components\Select::make('speciality_id')
+                                ->relationship('speciality', 'name')
+                                ->searchable()
+                                ->preload()
+                                ->required()
+                                ->createOptionForm([
+                                    Forms\Components\TextInput::make('name')
+                                        ->required()
+                                        ->maxLength(255),
+                                    Forms\Components\TextInput::make('description')
+                                        ->maxLength(255),
+                                    Forms\Components\Toggle::make('status')
+                                        ->required(),
+                                ]),
+                            
+                            Forms\Components\Textarea::make('bio')
+                                ->columnSpanFull(),
+                            
+                            Forms\Components\TextInput::make('experience')
+                                ->numeric(),
+                        ])->columns(2)
+                        ->columnSpan(2),
+
+                           // — featured image
+                    Section::make('Doctor Profile nad Status')
+                     ->schema([
+                            Forms\Components\Toggle::make('is_featured')
+                                ->label('Featured'),
+
+                            Forms\Components\FileUpload::make('image')
+                                ->label('Profile Image')
+                                ->disk('public')
+                                ->directory('doctors')
+                                ->preserveFilenames()
+                                ->image(),
+                        ])
+                        ->columnSpan(1),
+            ])->columns(3);
+
     }
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('user_id')
-                    ->numeric()
+
+                  Tables\Columns\ImageColumn::make('image')
+            ->label('Profile Image')
+            ->circular()     
+            ->height(50)     
+            ->width(50),  
+
+                Tables\Columns\TextColumn::make('user.name')
+                ->label('Doctor Name')
+                ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('speciality_id')
-                    ->numeric()
+                Tables\Columns\TextColumn::make('speciality.name')
+                    ->label('Speciality')
+                    ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('experience')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\IconColumn::make('is_featured')
+                ->label('Featured')
                     ->boolean(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
