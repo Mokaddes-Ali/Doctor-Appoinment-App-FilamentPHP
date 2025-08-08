@@ -10,7 +10,7 @@ class DoctorSchedule extends Model
     /** @use HasFactory<\Database\Factories\DoctorScheduleFactory> */
     use HasFactory;
 
-    public function doctors(){
+    public function doctor(){
         return $this->belongsTo(Doctor::class);
     }
 }
